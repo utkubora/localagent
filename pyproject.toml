@@ -5,7 +5,14 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
-    "requests>=2.34.2",
+    "anthropic"
+]
+
+[project.optional-dependencies]
+local = [
+    "transformers>=4.45",
+    "torch",
+    "accelerate",
 ]
 
 [project.scripts]

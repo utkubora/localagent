@@ -1,13 +1,13 @@
-# --------------------------------------------------------------------------- #
-# Tool registry
-# --------------------------------------------------------------------------- #
-
-import inspect
 import json
-from dataclasses import dataclass
+import uuid
+import inspect
 import types
+from dataclasses import dataclass, field
 from typing import Any, Callable, Literal, Union, get_args, get_origin, get_type_hints
 
+# --------------------------------------------------------------------------- #
+# Tool registry (provider-neutral)
+# --------------------------------------------------------------------------- #
 
 _PY_TO_JSON = {
     str: "string",
@@ -70,29 +70,39 @@ class Tool:
     fn: Callable[..., Any]
 
     @property
-    def spec(self) -> dict:
+    def anthropic_spec(self) -> dict:
         return {
             "name": self.name,
             "description": self.description,
             "input_schema": self.input_schema,
         }
 
+    @property
+    def openai_spec(self) -> dict:
+        """The `{"type": "function", ...}` shape HF chat templates expect."""
+        return {
+            "type": "function",
+            "function": {
+                "name": self.name,
+                "description": self.description,
+                "parameters": self.input_schema,
+            },
+        }
+
     def call(self, arguments: dict) -> str:
         result = self.fn(**arguments)
-        if isinstance(result, str):
-            return result
-        return json.dumps(result, default=str, indent=2)
+        return result if isinstance(result, str) else json.dumps(result, default=str, indent=2)
 
 
 REGISTRY: dict[str, Tool] = {}
 
 
 def tool(fn: Callable) -> Callable:
-    """Decorator: turn a typed, documented function into a Claude tool.
+    """Decorator: turn a typed, Google-docstring'd function into a Tool.
 
-    The docstring becomes the tool description (Claude relies on it heavily —
-    be verbose), type hints become the JSON Schema, and any parameter without a
-    default is marked required.
+    Type hints become the JSON Schema, the docstring becomes the description.
+    Small local models are much more sensitive to vague descriptions than Claude
+    is, so err on the side of over-explaining.
     """
     hints = get_type_hints(fn)
     summary, param_docs = _parse_docstring(fn.__doc__ or "")
@@ -110,11 +120,34 @@ def tool(fn: Callable) -> Callable:
     REGISTRY[fn.__name__] = Tool(
         name=fn.__name__,
         description=summary or fn.__name__,
-        input_schema={
-            "type": "object",
-            "properties": properties,
-            "required": required,
-        },
+        input_schema={"type": "object", "properties": properties, "required": required},
         fn=fn,
     )
     return fn
+
+
+@dataclass
+class ToolCall:
+    id: str
+    name: str
+    arguments: dict
+
+
+@dataclass
+class ToolResult:
+    id: str
+    name: str
+    content: str
+    is_error: bool = False
+
+
+@dataclass
+class Turn:
+    text: str = ""
+    thinking: str = ""
+    tool_calls: list[ToolCall] = field(default_factory=list)
+
+
+def _new_id() -> str:
+    return f"call_{uuid.uuid4().hex[:8]}"
+
