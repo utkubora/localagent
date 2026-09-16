@@ -182,6 +182,20 @@ def parse_tool_calls(text: str) -> tuple[str, list[ToolCall]]:
     return text.replace("<|python_tag|>", "").strip(), calls
 
 
+def _best_device_map() -> str:
+    """Prefer a real accelerator over transformers' generic placement heuristic."""
+    import torch
+
+    if torch.cuda.is_available():
+        print("Using CUDA backend for local model inference.")
+        return "cuda"
+    if torch.backends.mps.is_available():
+        print("Using MPS backend for local model inference.")
+        return "mps"
+    print("Using CPU backend for local model inference. This will be slow.")
+    return "auto"
+
+
 class TransformersBackend(Backend):
     """A local Hugging Face causal LM.
 
@@ -195,7 +209,7 @@ class TransformersBackend(Backend):
         self,
         model: str = "Qwen/Qwen2.5-7B-Instruct",
         system: str = SYSTEM_PROMPT,
-        device_map: str = "auto",
+        device_map: str | None = None,
         dtype: str = "auto",
         max_new_tokens: int = 1024,
         temperature: float = 0.3,
@@ -205,6 +219,9 @@ class TransformersBackend(Backend):
         model_kwargs: dict | None = None,
     ) -> None:
         from transformers import AutoModelForCausalLM, AutoTokenizer
+
+        if device_map is None:
+            device_map = _best_device_map()
 
         kwargs: dict[str, Any] = {"device_map": device_map, **(model_kwargs or {})}
         if quantization_config is not None:  # e.g. BitsAndBytesConfig(load_in_4bit=True)
