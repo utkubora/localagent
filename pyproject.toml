@@ -17,6 +17,9 @@ local = [
 rag = [
     "chromadb>=0.5",
 ]
+mcp = [
+    "mcp>=2.0",
+]
 
 [project.scripts]
 localagent = "localagent:main"

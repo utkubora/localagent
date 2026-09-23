@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    //"fs": { "command": "npx", "args": ["-y", "@modelcontextprotocol/server-filesystem", "./workspace"] },
+    //"remote": { "url": "https://example.com/mcp", "headers": { "Authorization": "Bearer ..." } },
+    //"big": { "command": "...", "allow": ["only_this_tool"] }
+  }
+}

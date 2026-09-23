@@ -79,6 +79,7 @@ class Agent:
         self.backend.add_user(user_message)
 
         for step in range(self.max_steps):
+            self.log(f"generating step {step + 1}...")
             turn = self.backend.generate(list(self.tools.values()))
 
             if not turn.tool_calls:
