@@ -32,7 +32,7 @@ import sys
 from concurrent.futures import ThreadPoolExecutor
 
 from .tools.baseTool import Tool,ToolCall,ToolResult,REGISTRY
-from .processor import Backend,AnthropicBackend
+from .processor import Backend,TransformersBackend
 
 
 # --------------------------------------------------------------------------- #
@@ -50,7 +50,7 @@ class Agent:
         parallel: bool = True,
         verbose: bool = True,
     ) -> None:
-        self.backend = backend or AnthropicBackend()
+        self.backend = backend or TransformersBackend()
         self.tools = tools if tools is not None else REGISTRY
         self.max_steps = max_steps
         self.parallel = parallel
