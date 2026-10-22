@@ -32,7 +32,7 @@ import sys
 from concurrent.futures import ThreadPoolExecutor
 
 from .tools.baseTool import Tool,ToolCall,ToolResult,REGISTRY
-from .processor import Backend,TransformersBackend
+from .backends import Backend,TransformersBackend
 
 
 # --------------------------------------------------------------------------- #

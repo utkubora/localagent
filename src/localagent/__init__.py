@@ -4,7 +4,13 @@ import sys
 from pathlib import Path
 
 from .tools.tools import WORKSPACE
-from .processor import Backend,TransformersBackend,AnthropicBackend
+from .backends import (
+    Backend,
+    TransformersBackend,
+    AnthropicBackend,
+    OllamaBackend,
+    OpenAICompatibleBackend,
+)
 from .agent import Agent
 
 # --------------------------------------------------------------------------- #
@@ -19,6 +25,23 @@ def build_backend(args: argparse.Namespace) -> Backend:
             max_new_tokens=args.max_new_tokens,
             stream=args.stream,
         )
+    if args.backend == "ollama":
+        return OllamaBackend(
+            model=args.model or "qwen2.5:7b",
+            host=args.base_url,
+            max_new_tokens=args.max_new_tokens,
+            stream=args.stream,
+        )
+    if args.backend == "remote":
+        if not args.base_url:
+            sys.exit("Set --base-url or LOCALAGENT_BASE_URL, e.g. http://spark.local:8000/v1")
+        return OpenAICompatibleBackend(
+            base_url=args.base_url,
+            model=args.model,
+            api_key=os.environ.get("LOCALAGENT_API_KEY", "EMPTY"),
+            max_new_tokens=args.max_new_tokens,
+            stream=args.stream,
+        )
     if not os.environ.get("ANTHROPIC_API_KEY"):
         sys.exit("Set ANTHROPIC_API_KEY, or use --backend local.")
     return AnthropicBackend(model=args.model or "claude-sonnet-5")
@@ -27,10 +50,19 @@ def build_backend(args: argparse.Namespace) -> Backend:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Tool-calling agent, hosted or local.")
     parser.add_argument("prompt", nargs="*", help="run once and exit; omit for a REPL")
-    parser.add_argument("--backend", choices=("anthropic", "local"), default="local")
-    parser.add_argument("--model", help="API model id or HF checkpoint")
+    parser.add_argument(
+        "--backend", choices=("anthropic", "local", "ollama", "remote"), default="local"
+    )
+    parser.add_argument(
+        "--model", help="API model id, HF checkpoint, or Ollama tag; remote defaults to the served one"
+    )
+    parser.add_argument(
+        "--base-url",
+        default=os.environ.get("LOCALAGENT_BASE_URL"),
+        help="server address for remote (OpenAI-compatible /v1) or ollama backends",
+    )
     parser.add_argument("--max-new-tokens", type=int, default=1024)
-    parser.add_argument("--stream", action="store_true", help="local backend only")
+    parser.add_argument("--stream", action="store_true", help="not for the anthropic backend")
     parser.add_argument("--quiet", action="store_true")
     parser.add_argument(
         "--mcp-config", default="mcp.json", help="MCP server config; skipped if the file is missing"
@@ -50,10 +82,8 @@ def main() -> None:
 def connect_mcp(config: str, verbose: bool):
     if not Path(config).exists():
         return None
-    try:
-        from .tools.mcp_bridge import load_mcp_servers
-    except ImportError:
-        sys.exit(f'{config} found but the MCP SDK is missing: pip install "localagent[mcp]"')
+    from .tools.mcp_bridge import load_mcp_servers
+
     return load_mcp_servers(config, verbose=verbose)
 
 

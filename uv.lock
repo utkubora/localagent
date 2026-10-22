@@ -585,32 +585,27 @@ name = "localagent"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
-    { name = "anthropic" },
-]
-
-[package.optional-dependencies]
-local = [
     { name = "accelerate" },
+    { name = "anthropic" },
+    { name = "chromadb" },
+    { name = "mcp" },
+    { name = "ollama" },
+    { name = "openai" },
     { name = "torch" },
     { name = "transformers" },
-]
-mcp = [
-    { name = "mcp" },
-]
-rag = [
-    { name = "chromadb" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "accelerate", marker = "extra == 'local'" },
+    { name = "accelerate" },
     { name = "anthropic" },
-    { name = "chromadb", marker = "extra == 'rag'", specifier = ">=0.5" },
-    { name = "mcp", marker = "extra == 'mcp'", specifier = ">=2.0" },
-    { name = "torch", marker = "extra == 'local'", index = "https://download.pytorch.org/whl/nightly/cu128" },
-    { name = "transformers", marker = "extra == 'local'", specifier = ">=4.45" },
+    { name = "chromadb", specifier = ">=0.5" },
+    { name = "mcp", specifier = ">=2.0" },
+    { name = "ollama", specifier = ">=0.6" },
+    { name = "openai", specifier = ">=1.40" },
+    { name = "torch", index = "https://download.pytorch.org/whl/nightly/cu128" },
+    { name = "transformers", specifier = ">=4.45" },
 ]
-provides-extras = ["local", "rag", "mcp"]
 
 [[package]]
 name = "markdown-it-py"
@@ -784,6 +779,19 @@ wheels = [
 ]
 
 [[package]]
+name = "ollama"
+version = "0.6.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "httpx" },
+    { name = "pydantic" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/b8/97/eeafe65594e4f4b25e443e068ef7d83aa3105b023e12e1c408c38669fc07/ollama-0.6.3.tar.gz", hash = "sha256:41fc49a8095c4a75939c4c1f8582e4d0671692fb6eac2a5a7ede8c9872b67096", size = 56868, upload-time = "2026-09-29T01:26:51.906Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/4d/64/87505d9e006461233c21c8e66dc1ecee49c996090584b216abd0dd4a8322/ollama-0.6.3-py3-none-any.whl", hash = "sha256:6a20bc42c1a5f889295d7ec490d35e5132fc31f339561530f43a8abd4dbfe508", size = 16603, upload-time = "2026-09-29T01:26:50.451Z" },
+]
+
+[[package]]
 name = "onnxruntime"
 version = "1.30.0"
 source = { registry = "https://pypi.org/simple" }
@@ -796,6 +804,23 @@ dependencies = [
 wheels = [
     { url = "https://files.pythonhosted.org/packages/4d/0a/748b86000fbf9518b5dfc5bdc1b924eeaca976203740fd9d30649e568ee6/onnxruntime-1.30.0-cp314-cp314-win_amd64.whl", hash = "sha256:3bdd1752a8502ac1a7ccc6e878d16db6943df574d54ed7f01058a6806ae05be4", size = 14675319, upload-time = "2026-09-10T16:32:07.5Z" },
     { url = "https://files.pythonhosted.org/packages/2f/db/db8e4c0cf6f70f1311060560630fd21763648e01dfbba5195a2592c052ef/onnxruntime-1.30.0-cp314-cp314-win_arm64.whl", hash = "sha256:83d543843cbd352cfa9996a6c7b92f8a480f114a18f95ff2a1acaf6921e85b6d", size = 14569360, upload-time = "2026-09-10T16:32:09.896Z" },
+]
+
+[[package]]
+name = "openai"
+version = "3.36.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "anyio" },
+    { name = "httpx2" },
+    { name = "jiter" },
+    { name = "pydantic" },
+    { name = "sniffio" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/e4/5e/a7c7e6f565950764214fb13e2b72076e5957ce80c37eb1b0ddda2102e4f4/openai-3.36.1.tar.gz", hash = "sha256:ad8e5d56f20198915d98726ac1edb12ae38e7ecfa9bd560057e84642168b20c9", size = 2307878, upload-time = "2026-10-22T03:33:16.563Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/be/e4/83f139714d10d75af2b6891a20c973945dd9b942b11cc407ba4536fb40b9/openai-3.36.1-py3-none-any.whl", hash = "sha256:4c15b6765fe1792c5ad753556f44c7f82c2920c5e9e40219c0fca97369e923d3", size = 2296265, upload-time = "2026-10-22T03:33:14.555Z" },
 ]
 
 [[package]]

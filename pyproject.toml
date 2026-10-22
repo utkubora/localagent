@@ -5,20 +5,14 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
-    "anthropic"
-]
-
-[project.optional-dependencies]
-local = [
+    "anthropic",
     "transformers>=4.45",
     "torch",
     "accelerate",
-]
-rag = [
     "chromadb>=0.5",
-]
-mcp = [
     "mcp>=2.0",
+    "ollama>=0.6",
+    "openai>=1.40",
 ]
 
 [project.scripts]
