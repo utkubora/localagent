@@ -1,1 +1,4 @@
 /.venv
+/src/localagent/__pycache__/
+/src/localagent/tools/__pycache__/
+/src/localagent/backends/__pycache__/
